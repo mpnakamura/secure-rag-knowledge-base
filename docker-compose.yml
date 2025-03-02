@@ -1,0 +1,94 @@
+version: "3.8"
+
+services:
+  # ベクトルデータベース
+  vectordb:
+    image: qdrant/qdrant:latest
+    volumes:
+      - ./data/vector_db:/qdrant/storage
+    environment:
+      - QDRANT_ALLOW_CORS=true # 開発環境ではCORSを許可
+    ports:
+      - "6333:6333"
+      - "6334:6334" # ダッシュボード用
+    networks:
+      - backend-network
+
+  # バックエンドAPI
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    volumes:
+      - ./api:/app # ソースコードをマウントして開発効率化
+      - ./data:/data
+    environment:
+      - VECTOR_DB_URL=http://vectordb:6333
+      - JWT_SECRET=dev-jwt-secret-key-change-in-production
+      - ENCRYPTION_KEY=dev-encryption-key-32-chars-long!
+      - DEBUG=true
+      - LOG_LEVEL=DEBUG
+    depends_on:
+      - vectordb
+    ports:
+      - "8000:8000"
+    networks:
+      - frontend-network
+      - backend-network
+
+  # RAGエンジン
+  rag_engine:
+    build:
+      context: ./rag_engine
+      dockerfile: Dockerfile
+    volumes:
+      - ./rag_engine:/app # ソースコードをマウント
+      - ./data:/data
+    environment:
+      - VECTOR_DB_URL=http://vectordb:6333
+      - ENCRYPTION_KEY=dev-encryption-key-32-chars-long!
+      - DEBUG=true
+    depends_on:
+      - vectordb
+    networks:
+      - backend-network
+
+  # ユーザーインターフェース
+  ui:
+    build:
+      context: ./ui
+      dockerfile: Dockerfile
+    volumes:
+      - ./ui:/app # ソースコードをマウント
+      - ./data:/data
+    environment:
+      - API_URL=http://api:8000
+      - REQUIRE_2FA=false # 開発環境では無効化
+      - DEBUG=true
+    depends_on:
+      - api
+    ports:
+      - "8501:8501"
+    networks:
+      - frontend-network
+
+  # オプショナルのローカルLLM（プロファイルで制御）
+  local_llm:
+    image: ghcr.io/mistralai/mistral-embed-ja:latest
+    volumes:
+      - ./data/models:/models
+    ports:
+      - "8081:8080"
+    networks:
+      - backend-network
+    profiles:
+      - local_llm
+
+networks:
+  frontend-network:
+    driver: bridge
+  backend-network:
+    driver: bridge
+
+volumes:
+  data:
