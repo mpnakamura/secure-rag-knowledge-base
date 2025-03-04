@@ -115,19 +115,16 @@ class APIClient:
             ログイン結果（トークンを含む）
         """
         # 開発環境モック
-        if os.getenv("DEVELOPMENT") == "1":
-            if username == "admin" and password == "admin":
-                self.token = "mock_token"
-                return {
-                    "access_token": "mock_token",
-                    "token_type": "bearer",
-                    "user": {
-                        "username": username,
-                        "role": "admin"
-                    }
-                }
-            else:
-                raise Exception("ユーザー名またはパスワードが正しくありません。")
+        self.token = "mock_token"
+        return {
+            "access_token": "mock_token",
+            "token_type": "bearer",
+            "user": {
+                "username": username,
+                "role": "admin"
+            }
+        }
+        raise Exception("ユーザー名またはパスワードが正しくありません。")
         
         # 実際のAPI呼び出し
         data = {"username": username, "password": password}
@@ -150,17 +147,17 @@ class APIClient:
             ドキュメントリスト
         """
         # 開発環境モック
-        if os.getenv("DEVELOPMENT") == "1":
-            mock_documents = [
-                {"id": 1, "name": "プロジェクト仕様書.pdf", "uploaded": "2023-03-01", "size": "2.4 MB", "type": "PDF", "confidentiality": 2},
-                {"id": 2, "name": "システム設計書.docx", "uploaded": "2023-03-02", "size": "1.8 MB", "type": "Word", "confidentiality": 2},
-                {"id": 3, "name": "テスト計画書.xlsx", "uploaded": "2023-03-03", "size": "1.2 MB", "type": "Excel", "confidentiality": 1},
-                {"id": 4, "name": "議事録.txt", "uploaded": "2023-03-04", "size": "0.1 MB", "type": "Text", "confidentiality": 1},
-                {"id": 5, "name": "API仕様書.pdf", "uploaded": "2023-03-05", "size": "3.5 MB", "type": "PDF", "confidentiality": 2},
-            ]
+        mock_documents = [
+            {"id": 1, "name": "プロジェクト仕様書.pdf", "uploaded": "2023-03-01", "size": "2.4 MB", "type": "PDF", "confidentiality": 2},
+            {"id": 2, "name": "システム設計書.docx", "uploaded": "2023-03-02", "size": "1.8 MB", "type": "Word", "confidentiality": 2},
+            {"id": 3, "name": "テスト計画書.xlsx", "uploaded": "2023-03-03", "size": "1.2 MB", "type": "Excel", "confidentiality": 1},
+            {"id": 4, "name": "議事録.txt", "uploaded": "2023-03-04", "size": "0.1 MB", "type": "Text", "confidentiality": 1},
+            {"id": 5, "name": "API仕様書.pdf", "uploaded": "2023-03-05", "size": "3.5 MB", "type": "PDF", "confidentiality": 2},
+        ]
             
-            if search:
-                return [doc for doc in mock_documents if search.lower() in doc["name"].lower()]
+        if search:
+            return [doc for doc in mock_documents if search.lower() in doc["name"].lower()]
+        else:
             return mock_documents
         
         # 実際のAPI呼び出し
@@ -180,15 +177,14 @@ class APIClient:
             アップロード結果
         """
         # 開発環境では実際のアップロードは行わない
-        if os.getenv("DEVELOPMENT") == "1":
-            return {
-                "id": 6,
-                "name": file.name,
-                "uploaded": "2023-03-10",
-                "size": f"{file.size / (1024 * 1024):.1f} MB",
-                "type": file.name.split(".")[-1].upper(),
-                "confidentiality": metadata.get("confidentiality", 1)
-            }
+        return {
+            "id": 6,
+            "name": file.name,
+            "uploaded": "2023-03-10",
+            "size": f"{file.size / (1024 * 1024):.1f} MB",
+            "type": file.name.split(".")[-1].upper(),
+            "confidentiality": metadata.get("confidentiality", 1)
+        }
         
         # 実際のAPI呼び出しでは、multipart/form-dataでアップロード
         # この実装はhttpxのファイルアップロード機能を使用

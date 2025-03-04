@@ -8,12 +8,12 @@ from streamlit_extras.add_vertical_space import add_vertical_space
 
 # 自作モジュールをインポート
 from utils.session import init_session_state
-from pages.login import display_login_page
-# from pages.home import display_home_page
-from pages.chat import display_chat_page
-from pages.documents import display_documents_page
-from pages.history import display_history_page
-from pages.settings import display_settings_page
+from views.login import display_login_page
+from views.home import display_home_page
+from views.chat import display_chat_page
+from views.documents import display_documents_page
+from views.history import display_history_page
+#from views.settings import display_settings_page
 
 # ロギング設定
 logging.basicConfig(
@@ -28,8 +28,9 @@ st.set_page_config(
     page_title="Secure RAG Knowledge Base",
     page_icon="🔒",
     layout="wide",
-    initial_sidebar_state="expanded",
 )
+
+os.environ["DEVELOPMENT"] = "1"
 
 # カスタムCSSの読み込み
 def load_css():
@@ -40,7 +41,11 @@ def load_css():
     else:
         # CSSファイルがない場合はインラインCSSを使用
         st.markdown("""
-        <style>
+        <style>       
+            .container-card:empty {
+                display: none !important;
+            }    
+
             .main .block-container {
                 padding-top: 2rem;
                 padding-bottom: 2rem;
@@ -104,7 +109,7 @@ def main():
     
     # サイドバー
     with st.sidebar:
-        st.image("https://via.placeholder.com/150x150.png?text=RAG+KB", width=150)
+        st.image("https://placehold.jp/300x150.png", width=150)
         st.title("Secure RAG KB")
         
         if st.session_state.authenticated:
@@ -145,8 +150,8 @@ def main():
             display_documents_page()
         elif st.session_state.current_page == "履歴":
             display_history_page()
-        elif st.session_state.current_page == "設定":
-            display_settings_page()
+        #elif st.session_state.current_page == "設定":
+        #    display_settings_page()
 
 # アプリケーション実行
 if __name__ == "__main__":

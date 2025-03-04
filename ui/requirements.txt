@@ -13,3 +13,12 @@ streamlit-cookies-manager==0.2.0
 streamlit-option-menu==0.3.6
 streamlit-card==0.0.61
 streamlit-toggle-switch==1.0.2
+
+# 高度なレイアウト（オプション）
+streamlit-elements==0.1.0
+
+# Markdown拡張（オプション）
+markdown-it-py==3.0.0
+
+# 新しいUIコンポーネント
+streamlit-shadcn-ui>=0.1.0
